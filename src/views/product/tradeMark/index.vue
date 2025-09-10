@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 按钮 -->
-    <el-button type="primary" icon="el-icon-plus" style="margin: 10px 0px;">添加</el-button>
+    <el-button type="primary" icon="el-icon-plus" style="margin: 10px 0px;" @click="showDialog">添加</el-button>
     <!-- /按钮 -->
     <!-- 表格组件：
          data：表格组件将来需要展示的数据----数组类型
@@ -22,7 +22,7 @@
       </el-table-column>
       <el-table-column prop="prop" label="操作" width="width">
         <template>
-          <el-button type="warning" icon="el-icon-edit" size="mini">修改</el-button>
+          <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark">修改</el-button>
           <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
         </template>
       </el-table-column>
@@ -51,6 +51,34 @@
       @size-change="handleSizeChange"
     />
     <!-- /分页器 -->
+    <!-- 添加按钮对话框
+     :visible.sync 控制对话框显示与隐藏
+    -->
+    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
+      <!-- form表单 -->
+      <el-form style="width: 80%;">
+        <el-form-item label="品牌名称" label-width="100px">
+          <el-input autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="品牌LOGO" label-width="100xp">
+          <el-upload
+            class="avatar-uploader"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- /添加按钮对话框 -->
   </div>
 </template>
 <script>
@@ -63,7 +91,9 @@ export default {
       page: 1, // 分页器在第几页
       limit: 3, // 当前页数展示数据条数
       total: 0, // 总共数据条数
-      list: [] // 列表展示的数据
+      list: [], // 列表展示的数据
+      dialogFormVisible: false, // 控制对话框显示与隐藏
+      imageUrl: '' // 上次图片使用的属性
     }
   },
   created() {},
@@ -95,9 +125,56 @@ export default {
       this.limit = limit
       // 再发请求更新
       this.getPageList()
+    },
+    // 点击添加品牌对话框
+    showDialog() {
+      this.dialogFormVisible = true
+    },
+    // 修改品牌对话框
+    updateTradeMark() {
+      this.dialogFormVisible = true
+    },
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   }
 }
 </script>
 
-<style scoped lang="less"></style>
+<style>
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+</style>
