@@ -206,7 +206,7 @@ export default {
       const result = await this.$API.attr.reqAddOrUpadteAttr(this.attrInfo)
       if (result.code === 200) {
         this.isShowTable = true
-        this.$message({type:'success', message: '保存成功'})
+        this.$message({ type: 'success', message: '保存成功' })
         // 保存成功，更新界面列表
         this.getAttrList()
       } else {
@@ -229,7 +229,7 @@ export default {
       const result = await this.$API.attr.reqDeleteAttr(row.id)
       console.log(result.code)
       if (result.code === 200) {
-        this.$message({type:'success', message: '删除成功'})
+        this.$message({ type: 'success', message: '删除成功' })
         // 保存成功，更新界面列表
         this.getAttrList()
       } else {

@@ -150,8 +150,8 @@ export default {
     // console.log('this.$API:', this.$API)
   },
   methods: {
-    async getPageList(pager = 1) {
-      this.page = pager
+    async getPageList(pages = 1) {
+      this.page = pages
       // 解构this
       const { page, limit } = this
       // 获取品牌列表的接口

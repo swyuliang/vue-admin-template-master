@@ -41,7 +41,7 @@ export const reqAttrList = (category1Id, category2Id, category3Id) => requestadm
     }
   ],
   "categoryId": 0,      category3Id
-  "categoryLevel": 0,   
+  "categoryLevel": 0,
   "id": 0
 }
  */
@@ -55,5 +55,5 @@ export const reqAddOrUpdateAttr = data => requestadmin({
 // 'delete' /admin/product/deleteAttr/{attrId}
 export const reqDeleteAttr = attrId => requestadmin({
   url: `/admin/product/deleteAttr/${attrId}`,
-  method: 'DELETE',
+  method: 'DELETE'
 })
