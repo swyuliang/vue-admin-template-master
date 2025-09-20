@@ -192,6 +192,7 @@ export default {
       // 将品牌信息展示
       // this.tmForm.tmName = row.tmName
       // this.tmForm.logoUrl = row.logoUrl
+      // 浅拷贝
       this.tmForm = { ...row }
     },
     handleAvatarSuccess(res, file) {
@@ -217,7 +218,7 @@ export default {
           this.dialogFormVisible = false
           // 发请求添加品牌or修改品牌
           const result = await this.$API.trademark.reqAddOrUpdateTradeMark(this.tmForm)
-          console.log(result)
+          // console.log(result)
           if (result.code === 200) {
             // 弹出消息：修改品牌成功 or 添加品牌成功
             this.$message({
