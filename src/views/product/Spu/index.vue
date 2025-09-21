@@ -42,14 +42,10 @@
       </div>
       <!-- /展示SPU列表的结构 -->
       <!-- 添加SPU|修改SPU -->
-      <div v-show="scene === 1">
-        <spu-form></spu-form>
-      </div>
+      <spu-form v-show="scene === 1" ref="spu" @changeScene="changeScene"></spu-form>
       <!-- /添加SPU|修改SPU -->
       <!-- 添加SKU -->
-      <div v-show="scene === 2">
-        <sku-form></sku-form>
-      </div>
+      <sku-form v-show="scene === 2"></sku-form>
       <!-- /添加SKU -->
     </el-card>
   </div>
@@ -80,10 +76,14 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    // spuForm自定义事件回调
+    changeScene(scene) {
+      this.scene = scene
+    },
     // 修改Spu回调
     updateSpu(row) {
       this.scene = 1
-      console.log(row)
+      this.$refs.spu.initSpuData(row)
     },
     // 添加Spu回调
     addSpu() {
