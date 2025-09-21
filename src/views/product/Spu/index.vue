@@ -5,18 +5,18 @@
     </el-card>
     <el-card>
       <!-- 底下这里将来是由三部分进行切换 -->
-      <div>
-        <!-- 展示SPU列表的结构 -->
-        <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
+      <!-- 展示SPU列表的结构 -->
+      <div v-show="scene === 0">
+        <el-button type="primary" icon="el-icon-plus" style="margin: 10px 0;" :disabled="!category3Id" @click="addSpu">添加SPU</el-button>
         <el-table :data="records" style="width: 100%;" border>
           <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="spuName" label="SPU名称" width="width"></el-table-column>
           <el-table-column prop="description" label="SPU描述" width="width"></el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
-            <template slot-scope="{ row}">
+            <template slot-scope="{ row }">
               <!-- 这里按钮将来用hinButton替换 -->
               <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></hint-button>
-              <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu"></hint-button>
+              <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
               <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
               <hint-button type="danger" icon="el-icon-delete" size="mini" title="删除spu"></hint-button>
               <!-- <el-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></el-button>
@@ -40,14 +40,30 @@
         />
         <!-- /分页器 -->
       </div>
+      <!-- /展示SPU列表的结构 -->
+      <!-- 添加SPU|修改SPU -->
+      <div v-show="scene === 1">
+        <spu-form></spu-form>
+      </div>
+      <!-- /添加SPU|修改SPU -->
+      <!-- 添加SKU -->
+      <div v-show="scene === 2">
+        <sku-form></sku-form>
+      </div>
+      <!-- /添加SKU -->
     </el-card>
   </div>
 </template>
 
 <script>
+import SpuForm from './SpuForm'
+import SkuForm from './SkuForm'
 export default {
   name: 'SpuPage',
-  components: {},
+  components: {
+    SpuForm,
+    SkuForm
+  },
   props: {},
   data() {
     return {
@@ -57,12 +73,22 @@ export default {
       page: 1, // 分页器当前第几页
       limit: 3, // 每一页需要展示多少条数据
       records: [], // spu列表数据
-      total: 0 // 分页器一共需要展示数据的条数
+      total: 0, // 分页器一共需要展示数据的条数
+      scene: 0 // 0代表展示SPU列表数据   1代表添加SPU|修改SPU   2添加SKU
     }
   },
   created() {},
   mounted() {},
   methods: {
+    // 修改Spu回调
+    updateSpu(row) {
+      this.scene = 1
+      console.log(row)
+    },
+    // 添加Spu回调
+    addSpu() {
+      this.scene = 1
+    },
     handleSizeChange(limit) {
       // 修改参数
       this.limit = limit
@@ -92,7 +118,7 @@ export default {
       // 携带三个参数：page:第几页，limit:每一页需要展示多少条数据 三级分类id
       const { page, limit, category3Id } = this
       const result = await this.$API.spu.reqSpuList(page, limit, category3Id)
-      console.log('Spu：', result)
+      // console.log('Spu：', result)
       if (result.code === 200) {
         this.total = result.data.total
         this.records = result.data.records
