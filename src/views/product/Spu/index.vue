@@ -83,6 +83,8 @@ export default {
     // 修改Spu回调
     updateSpu(row) {
       this.scene = 1
+      // 获取子组件SpuForm子组件
+      // 在父组件当中可以通过$ref获取子组件等等
       this.$refs.spu.initSpuData(row)
     },
     // 添加Spu回调
