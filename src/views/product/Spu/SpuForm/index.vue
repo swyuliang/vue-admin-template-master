@@ -141,14 +141,14 @@ export default {
   methods: {
     // 取消按钮
     cancel() {
-      this.$emit('changeScene', { scene:0, flag:'' })
+      this.$emit('changeScene', { scene: 0, flag: '' })
       // 清空data
       // Object.assign: ES6中新增的方法可以合并对象
       Object.assign(this._data, this.$options.data())
     },
     // 点击添加SPU按钮的时候，发请求的函数
     async addSpuData(category3Id) {
-      console.log('添加')
+      // console.log('添加')
       // 添加SPU的时候收集三级分类的id
       this.spu.category3Id = category3Id
       // 获取品牌信息***************
@@ -186,7 +186,7 @@ export default {
         // 刷新跳转到scene: 0
         this.$emit('changeScene', {
           scene: 0,
-          flag: this.spu.id? '修改' : '添加'
+          flag: this.spu.id ? '修改' : '添加'
         })
         // 清空数据
         Object.assign(this._data, this.$options.data())

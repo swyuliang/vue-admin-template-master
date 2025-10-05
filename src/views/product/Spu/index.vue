@@ -18,7 +18,9 @@
               <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></hint-button>
               <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
               <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
-              <hint-button type="danger" icon="el-icon-delete" size="mini" title="删除spu"></hint-button>
+              <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteSpu(row)">
+                <hint-button type="danger" icon="el-icon-delete" size="mini" title="删除spu" slot="reference"></hint-button>
+              </el-popconfirm>
               <!-- <el-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></el-button>
               <el-button type="warning" icon="el-icon-edit" size="mini" title="修改spu"></el-button>
               <el-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></el-button>
@@ -76,10 +78,29 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    // deleteSpu删除SPU按钮回调
+    async deleteSpu(row) {
+      console.log('删除', row)
+      let result = await this.$API.spu.reqDeleteSpu(row.id)
+      if (result.code === 200) {
+        // 提示
+        this.$message({
+          type: 'success',
+          message: '删除成功！'
+        })
+        this.getSpuList(this.records.length > 1 ? this.page : this.page - 1)
+      } else {
+        // 提示
+        this.$message({
+          type: 'error',
+          message: '删除失败！'
+        })
+      }
+    },
     // spuForm自定义事件回调
     changeScene({ scene, flag }) {
       this.scene = scene
-      if (flag == '修改') {
+      if (flag === '修改') {
         this.getSpuList(this.page)
       } else {
         this.getSpuList()
