@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0px;">
-      <CategorySelect @getCategoryId="getCategoryId" />
+      <CategorySelect :show="scene !== 0" @getCategoryId="getCategoryId" />
     </el-card>
     <el-card>
       <!-- 底下这里将来是由三部分进行切换 -->
@@ -77,8 +77,13 @@ export default {
   mounted() {},
   methods: {
     // spuForm自定义事件回调
-    changeScene(scene) {
+    changeScene({ scene, flag }) {
       this.scene = scene
+      if (flag == '修改') {
+        this.getSpuList(this.page)
+      } else {
+        this.getSpuList()
+      }
     },
     // 修改Spu回调
     updateSpu(row) {
@@ -90,6 +95,8 @@ export default {
     // 添加Spu回调
     addSpu() {
       this.scene = 1
+      // 通知子组件SpuForm发请求--
+      this.$refs.spu.addSpuData(this.category3Id)
     },
     handleSizeChange(limit) {
       // 修改参数

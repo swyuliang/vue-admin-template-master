@@ -38,3 +38,21 @@ export const reqBaseSaleAttrList = () => requestadmin({
   url: '/admin/product/baseSaleAttrList',
   method: 'GET'
 })
+
+// 修改SPU:带id属性 'post' /admin/product/updateSpuInfo || 添加SPU: 不带id属性 'post' /admin/product/saveSpuInfo
+export const reqAddOrUpdateSpu = spuInfo => {
+  // 修改SPU:带id属性
+  if (spuInfo.id) {
+    return requestadmin({
+      url: '/admin/product/updateSpuInfo',
+      method: 'POST',
+      data: spuInfo
+    })
+  } else {
+    return requestadmin({
+      url: '/admin/product/saveSpuInfo',
+      method: 'POST',
+      data: spuInfo
+    })
+  }
+}

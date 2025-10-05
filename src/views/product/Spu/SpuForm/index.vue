@@ -41,40 +41,41 @@
           <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="saleAttrName" label="属性名" width="width"></el-table-column>
           <el-table-column prop="prop" label="属性值名称列表" width="width">
-            <template slot-scope="{ row }">
+            <template slot-scope="{ row, $index }">
               <!-- el-tag: 用户展示已有属性值列表的数据 -->
               <el-tag
                 :key="tag.id"
-                v-for="tag in row.spuSaleAttrValueList"
+                v-for="(tag, index) in row.spuSaleAttrValueList"
                 closable
                 :disable-transitions="false"
-                @close="handleClose(tag)">
+                @close="handleClose(row, index)">
                 {{ tag.saleAttrValueName }}
               </el-tag>
               <el-input
+                :ref="$index"
                 class="input-new-tag"
                 v-if="row.inputVisible"
                 v-model="row.inputValue"
                 ref="saveTagInput"
                 size="small"
-                @keyup.enter.native="handleInputConfirm"
+                @keyup.enter.native="$event.target.blur"
                 @blur="handleInputConfirm(row)"
               >
               </el-input>
               <!-- @click="showInput" -->
-              <el-button v-else class="button-new-tag" size="small" @click="addSaleAttrValue(row)">添加</el-button>
+              <el-button v-else class="button-new-tag" size="small" @click="addSaleAttrValue(row, $index)">添加</el-button>
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
-            <template slot-scope="{ row }">
-              <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+            <template slot-scope="{ row, $index }">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteSaleAttr($index)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
-        <el-button @click="$emit('changeScene', 0)">取消</el-button>
+        <el-button type="primary" @click="addOrUpdateSpu">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -93,7 +94,7 @@ export default {
         category3Id: 0,
         spuName: '',
         description: '',
-        tmId: 0,
+        tmId: '',
         spuImageList: [{
           // id: 0,
           // imgName: '',
@@ -138,6 +139,73 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    // 取消按钮
+    cancel() {
+      this.$emit('changeScene', { scene:0, flag:'' })
+      // 清空data
+      // Object.assign: ES6中新增的方法可以合并对象
+      Object.assign(this._data, this.$options.data())
+    },
+    // 点击添加SPU按钮的时候，发请求的函数
+    async addSpuData(category3Id) {
+      console.log('添加')
+      // 添加SPU的时候收集三级分类的id
+      this.spu.category3Id = category3Id
+      // 获取品牌信息***************
+      let tradeMarkResult = await this.$API.spu.reqTradeMarkList()
+      // console.log('tradeMarkResult', tradeMarkResult)
+      if (tradeMarkResult.code === 200) {
+        this.tradeMarkList = tradeMarkResult.data
+      }
+      // 获取平台所有的销售属性*********************
+      const saleResult = await this.$API.spu.reqBaseSaleAttrList()
+      // console.log('saleResult', saleResult)
+      if (saleResult.code === 200) {
+        this.saleAttrList = saleResult.data
+      }
+    },
+    // 保存按钮的回调
+    async addOrUpdateSpu() {
+      // console.log('保存成功')
+      // 整理参数，需要把照片墙里面的数据整理到spu里面
+      this.spu.spuImageList = this.spuImageList.map(item => {
+        return {
+          imgName: item.name,
+          imgUrl: (item.response && item.response.data) || item.url
+        }
+      })
+      // 发请求
+      let result = await this.$API.spu.reqAddOrUpdateSpu(this.spu)
+      // console.log(result)
+      if (result.code === 200) {
+        // 提示
+        this.$message({
+          type: 'success',
+          message: '保存成功！'
+        })
+        // 刷新跳转到scene: 0
+        this.$emit('changeScene', {
+          scene: 0,
+          flag: this.spu.id? '修改' : '添加'
+        })
+        // 清空数据
+        Object.assign(this._data, this.$options.data())
+      } else {
+        // 提示
+        this.$message({
+          type: 'error',
+          message: '保存失败！'
+        })
+      }
+    },
+    // 删除销售属性
+    deleteSaleAttr($index) {
+      this.spu.spuSaleAttrList.splice($index, 1)
+    },
+    // 删除销售属性标签
+    handleClose(row, index) {
+      row.spuSaleAttrValueList.splice(index, 1)
+    },
     // el-input失去焦点的事件
     handleInputConfirm(row) {
       console.log('blur')
@@ -171,12 +239,16 @@ export default {
       row.inputVisible = false
     },
     // 添加新销售属性的按钮回调
-    addSaleAttrValue(row) {
+    addSaleAttrValue(row, index) {
       // 点击销售属性值当中添加按钮的时候，需要有button变为input，通过当前销售属性的inputVisible控制
       // 挂载在销售属性身上的响应式数据inputVisible，控制button与input切换
       this.$set(row, 'inputVisible', true)
       // 通过响应式数据inputValue字段收集新增的销售属性值
       this.$set(row, 'inputValue', '')
+      this.$nextTick(() => {
+        // console.log(this.$refs[index])
+        this.$refs[index].focus()
+      })
     },
     // 添加新的销售属性
     addSaleAttr() {
@@ -195,7 +267,7 @@ export default {
     },
     // 照片墙图片上传成功的回调
     handlerSuccess(response, file, fileList) {
-      console.log(response, file, fileList)
+      // console.log(response, file, fileList)
       // 收集照片墙图片的数据
       this.spuImageList = fileList
     },
@@ -203,7 +275,7 @@ export default {
     handleRemove(file, fileList) {
       // file参数代表删除的那张图片
       // fileList参数代表照片墙删除某一张图片后剩余的其他图片
-      console.log(file, fileList)
+      // console.log(file, fileList)
       // 收集照片墙图片的数据
       this.spuImageList = fileList
     },
@@ -215,23 +287,23 @@ export default {
       this.dialogVisible = true
     },
     async initSpuData(spu) {
-      console.log('发请求', spu)
+      // console.log('发请求', spu)
       // 获取SPU信息的数据*****************
       const spuResult = await this.$API.spu.reqSpu(spu.id)
-      console.log('spuResult', spuResult)
+      // console.log('spuResult', spuResult)
       if (spuResult.code === 200) {
         // 在修改spu的时候，需要向服务器发请求，把服务器返回的数据（对象）,赋值给SPU属性
         this.spu = spuResult.data
       }
       // 获取品牌信息***************
-      const tradeMarkResult = await this.$API.spu.reqTradeMarkList()
-      console.log('tradeMarkResult', tradeMarkResult)
+      let tradeMarkResult = await this.$API.spu.reqTradeMarkList()
+      // console.log('tradeMarkResult', tradeMarkResult)
       if (tradeMarkResult.code === 200) {
         this.tradeMarkList = tradeMarkResult.data
       }
       // 获取SPU图片的数据********************
       const spuImageResult = await this.$API.spu.reqSpuImageList(spu.id)
-      console.log('spuImageResult', spuImageResult)
+      // console.log('spuImageResult', spuImageResult)
       if (spuImageResult.code === 200) {
         const listArr = spuImageResult.data
         // 由于照片墙显示图片的数据需要数组里面的元素包含name和url字段
@@ -245,7 +317,7 @@ export default {
       }
       // 获取平台所有的销售属性*********************
       const saleResult = await this.$API.spu.reqBaseSaleAttrList()
-      console.log('saleResult', saleResult)
+      // console.log('saleResult', saleResult)
       if (saleResult.code === 200) {
         this.saleAttrList = saleResult.data
       }
