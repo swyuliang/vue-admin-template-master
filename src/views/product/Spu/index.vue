@@ -15,7 +15,7 @@
           <el-table-column prop="prop" label="操作" width="width">
             <template slot-scope="{ row }">
               <!-- 这里按钮将来用hinButton替换 -->
-              <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku"></hint-button>
+              <hint-button type="success" icon="el-icon-plus" size="mini" title="添加sku" @click="addSku(row)"></hint-button>
               <hint-button type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></hint-button>
               <hint-button type="info" icon="el-icon-info" size="mini" title="查看当前spu全部sku列表"></hint-button>
               <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteSpu(row)">
@@ -78,6 +78,11 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    // *********SkuForm********************* */
+    addSku(row) {
+      this.scene = 2
+    },
+    // ********************************/
     // deleteSpu删除SPU按钮回调
     async deleteSpu(row) {
       console.log('删除', row)
