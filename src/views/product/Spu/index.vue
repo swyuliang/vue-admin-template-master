@@ -47,7 +47,7 @@
       <spu-form v-show="scene === 1" ref="spu" @changeScene="changeScene"></spu-form>
       <!-- /添加SPU|修改SPU -->
       <!-- 添加SKU -->
-      <sku-form v-show="scene === 2"></sku-form>
+      <sku-form v-show="scene === 2" ref="sku" @changeScenes="changeScenes"></sku-form>
       <!-- /添加SKU -->
     </el-card>
   </div>
@@ -79,8 +79,14 @@ export default {
   mounted() {},
   methods: {
     // *********SkuForm********************* */
+    // SKUForm通知父组件修改scence
+    changeScenes(scene) {
+      this.scene = scene
+    },
+    // 添加SKU按钮的回调
     addSku(row) {
       this.scene = 2
+      this.$refs.sku.getData(this.category1Id, this.category2Id, row)
     },
     // ********************************/
     // deleteSpu删除SPU按钮回调
