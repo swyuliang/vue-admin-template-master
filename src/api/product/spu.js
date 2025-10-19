@@ -92,3 +92,10 @@ export const reqAddSku = skuInfo => requestadmin({
   method: 'POST',
   data: skuInfo
 })
+
+// 获取SKU列表数据的接口
+// 'get' /admin/product/findBySpuId/{spuId}
+export const reqSkuList = spuId => requestadmin({
+  url: `/admin/product/findBySpuId/${spuId}`,
+  method: 'GET'
+})
